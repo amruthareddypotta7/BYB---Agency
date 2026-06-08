@@ -1,0 +1,1272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BYB — Build Your Brand</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;0,900;1,400;1,700&family=Outfit:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+
+:root{
+  --bg:#06060A;
+  --surface:#0C0C12;
+  --card:#10101A;
+  --white:#EEEEF0;
+  --muted:rgba(238,238,240,0.38);
+  --dim:rgba(238,238,240,0.12);
+  --accent:#E8D5B0;
+  --accent2:#C9A96E;
+  --glow:rgba(201,169,110,0.18);
+  --border:rgba(238,238,240,0.06);
+}
+
+html{scroll-behavior:smooth;font-size:16px}
+body{
+  font-family:'Outfit',sans-serif;
+  background:var(--bg);
+  color:var(--white);
+  overflow-x:hidden;
+  cursor:none;
+}
+
+/* ── CURSOR ── */
+#cur{
+  position:fixed;width:6px;height:6px;
+  background:var(--accent);border-radius:50%;
+  pointer-events:none;z-index:9999;
+  transform:translate(-50%,-50%);
+  transition:width .2s,height .2s,background .2s;
+}
+#cur.big{width:48px;height:48px;background:transparent;border:1px solid var(--accent2);mix-blend-mode:normal}
+#cur-trail{
+  position:fixed;width:44px;height:44px;
+  border:1px solid rgba(201,169,110,0.25);
+  border-radius:50%;
+  pointer-events:none;z-index:9998;
+  transform:translate(-50%,-50%);
+  transition:transform .55s cubic-bezier(.16,1,.3,1);
+}
+
+/* ── LOADER ── */
+#loader{
+  position:fixed;inset:0;z-index:9000;
+  background:var(--bg);
+  display:flex;align-items:center;justify-content:center;
+  flex-direction:column;gap:32px;
+  transition:opacity .8s ease,visibility .8s ease;
+}
+#loader.gone{opacity:0;visibility:hidden}
+.loader-logo{
+  font-family:'Playfair Display',serif;
+  font-size:48px;font-weight:400;
+  letter-spacing:0.15em;
+  color:var(--white);
+  overflow:hidden;
+}
+.loader-logo span{
+  display:inline-block;
+  animation:slideUp .9s cubic-bezier(.16,1,.3,1) both;
+}
+.loader-logo span:nth-child(2){animation-delay:.08s}
+.loader-logo span:nth-child(3){animation-delay:.16s}
+.loader-bar{
+  width:120px;height:1px;
+  background:var(--border);
+  overflow:hidden;
+}
+.loader-bar-fill{
+  height:100%;background:var(--accent2);
+  animation:loaderFill 1.6s cubic-bezier(.4,0,.2,1) forwards;
+}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:400;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:36px 72px;
+  transition:all .5s;
+}
+nav.stuck{
+  padding:20px 72px;
+  background:rgba(6,6,10,0.85);
+  backdrop-filter:blur(24px);
+  border-bottom:1px solid var(--border);
+}
+.nav-logo{
+  font-family:'Playfair Display',serif;
+  font-size:22px;font-weight:700;
+  letter-spacing:0.08em;
+  color:var(--white);text-decoration:none;
+  display:flex;align-items:center;gap:10px;
+}
+.nav-dot{
+  width:8px;height:8px;
+  background:var(--accent2);border-radius:50%;
+  animation:breathe 3s ease-in-out infinite;
+}
+.nav-links{
+  display:flex;gap:48px;list-style:none;
+  position:absolute;left:50%;transform:translateX(-50%);
+}
+.nav-links a{
+  font-size:13px;font-weight:300;
+  letter-spacing:0.08em;
+  color:var(--muted);text-decoration:none;
+  transition:color .3s;
+  position:relative;
+}
+.nav-links a::after{
+  content:'';position:absolute;bottom:-4px;left:0;
+  width:0;height:1px;background:var(--accent2);
+  transition:width .3s;
+}
+.nav-links a:hover{color:var(--white)}
+.nav-links a:hover::after{width:100%}
+.nav-btn{
+  font-size:12px;font-weight:500;
+  letter-spacing:0.12em;text-transform:uppercase;
+  color:var(--bg);background:var(--accent);
+  padding:13px 32px;text-decoration:none;cursor:none;
+  transition:background .3s,transform .2s;
+}
+.nav-btn:hover{background:var(--accent2);transform:translateY(-1px)}
+
+/* ── HERO ── */
+.hero{
+  min-height:100vh;
+  display:grid;grid-template-columns:1fr 1fr;
+  position:relative;overflow:hidden;
+}
+
+/* left column */
+.hero-l{
+  padding:160px 72px 100px;
+  display:flex;flex-direction:column;justify-content:center;
+  position:relative;z-index:2;
+}
+.hero-eyebrow{
+  display:inline-flex;align-items:center;gap:12px;
+  font-size:11px;font-weight:500;
+  letter-spacing:0.25em;text-transform:uppercase;
+  color:var(--accent2);margin-bottom:52px;
+  animation:fadeUp .9s ease .2s both;
+}
+.hero-eyebrow-line{width:32px;height:1px;background:var(--accent2)}
+
+.hero-h1{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(52px,5.5vw,88px);
+  font-weight:900;line-height:1;
+  letter-spacing:-0.02em;
+  margin-bottom:36px;
+  animation:fadeUp .9s ease .35s both;
+}
+.hero-h1 .stroke{
+  display:block;
+  color:transparent;
+  -webkit-text-stroke:1px rgba(238,238,240,0.18);
+}
+.hero-h1 .gold{
+  display:block;
+  background:linear-gradient(135deg,#E8D5B0 0%,#C9A96E 50%,#A07840 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+
+.hero-p{
+  font-size:16px;font-weight:300;line-height:1.85;
+  color:var(--muted);max-width:400px;
+  margin-bottom:56px;
+  animation:fadeUp .9s ease .5s both;
+}
+.hero-btns{
+  display:flex;gap:16px;align-items:center;
+  animation:fadeUp .9s ease .65s both;
+}
+.btn-primary{
+  background:var(--accent);color:var(--bg);
+  padding:18px 44px;
+  font-size:12px;font-weight:600;
+  letter-spacing:0.12em;text-transform:uppercase;
+  text-decoration:none;cursor:none;
+  transition:background .3s,transform .2s;
+  display:inline-block;
+}
+.btn-primary:hover{background:var(--accent2);transform:translateY(-2px)}
+.btn-text{
+  font-size:13px;font-weight:300;
+  letter-spacing:0.05em;
+  color:var(--muted);text-decoration:none;cursor:none;
+  display:flex;align-items:center;gap:10px;
+  transition:color .3s;
+}
+.btn-text:hover{color:var(--accent)}
+.btn-text::after{content:'→';transition:transform .3s}
+.btn-text:hover::after{transform:translateX(4px)}
+
+/* right column */
+.hero-r{
+  position:relative;overflow:hidden;
+  background:var(--surface);
+}
+.hero-r-inner{
+  position:absolute;inset:0;
+  display:flex;align-items:center;justify-content:center;
+}
+.orb{
+  position:absolute;
+  border-radius:50%;
+  filter:blur(80px);
+  pointer-events:none;
+}
+.orb1{width:500px;height:500px;background:rgba(201,169,110,0.07);top:-100px;right:-100px}
+.orb2{width:350px;height:350px;background:rgba(100,80,200,0.04);bottom:-50px;left:-50px}
+
+.hero-card-stack{
+  position:relative;width:380px;
+  animation:fadeUp .9s ease .4s both;
+}
+.hero-card{
+  background:var(--card);
+  border:1px solid var(--border);
+  padding:36px;
+  position:relative;
+}
+.hero-card + .hero-card{margin-top:3px}
+.hc-label{
+  font-size:10px;font-weight:500;
+  letter-spacing:0.2em;text-transform:uppercase;
+  color:var(--accent2);margin-bottom:16px;
+}
+.hc-title{
+  font-family:'Playfair Display',serif;
+  font-size:22px;font-weight:500;
+  color:var(--white);margin-bottom:8px;
+}
+.hc-sub{font-size:13px;font-weight:300;color:var(--muted);line-height:1.6}
+.hc-pill{
+  display:inline-flex;align-items:center;gap:6px;
+  background:rgba(201,169,110,0.1);
+  border:1px solid rgba(201,169,110,0.2);
+  padding:6px 14px;border-radius:100px;
+  font-size:11px;font-weight:500;
+  color:var(--accent2);margin-top:16px;
+}
+.hc-pill::before{content:'';width:6px;height:6px;background:var(--accent2);border-radius:50%;animation:breathe 2s ease-in-out infinite}
+.hc-row{display:flex;align-items:center;justify-content:space-between;margin-top:20px}
+.hc-stat{text-align:center}
+.hc-stat-n{
+  font-family:'Playfair Display',serif;
+  font-size:28px;font-weight:700;
+  background:linear-gradient(135deg,#E8D5B0,#C9A96E);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.hc-stat-l{font-size:10px;font-weight:300;color:var(--muted);letter-spacing:0.05em;margin-top:4px}
+.hc-div{width:1px;height:40px;background:var(--border)}
+
+/* hero bottom bar */
+.hero-bottom{
+  position:absolute;bottom:0;left:0;right:0;
+  background:var(--surface);
+  border-top:1px solid var(--border);
+  display:flex;
+  animation:fadeUp .9s ease .8s both;
+}
+.hb-item{
+  flex:1;padding:28px 40px;
+  border-right:1px solid var(--border);
+  display:flex;align-items:center;gap:16px;
+  cursor:none;transition:background .3s;
+}
+.hb-item:last-child{border-right:none}
+.hb-item:hover{background:rgba(201,169,110,0.04)}
+.hb-num{
+  font-family:'Playfair Display',serif;
+  font-size:32px;font-weight:700;
+  background:linear-gradient(135deg,#E8D5B0,#C9A96E);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;line-height:1;
+}
+.hb-label{font-size:12px;font-weight:300;color:var(--muted);line-height:1.4}
+
+/* ── MARQUEE ── */
+.marquee-wrap{
+  border-top:1px solid var(--border);
+  border-bottom:1px solid var(--border);
+  overflow:hidden;padding:0;
+  background:var(--bg);
+}
+.marquee-track{
+  display:flex;
+  animation:marquee 30s linear infinite;
+  white-space:nowrap;
+}
+.m-item{
+  display:inline-flex;align-items:center;gap:20px;
+  padding:18px 56px;
+  font-family:'Playfair Display',serif;
+  font-size:15px;font-style:italic;font-weight:400;
+  color:var(--muted);flex-shrink:0;
+}
+.m-star{color:var(--accent2);font-style:normal;font-size:10px}
+
+/* ── SERVICES ── */
+.services{padding:160px 72px;background:var(--bg)}
+
+.s-header{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:60px;align-items:end;
+  margin-bottom:100px;
+}
+.eyebrow{
+  display:inline-flex;align-items:center;gap:12px;
+  font-size:11px;font-weight:500;
+  letter-spacing:0.25em;text-transform:uppercase;
+  color:var(--accent2);margin-bottom:24px;
+}
+.eyebrow::before{content:'';width:24px;height:1px;background:var(--accent2)}
+.big-title{
+  font-family:'Playfair Display',serif;
+  font-size:clamp(40px,4vw,64px);
+  font-weight:700;line-height:1.05;
+  letter-spacing:-0.02em;color:var(--white);
+}
+.big-title em{font-style:italic;color:var(--accent)}
+.s-header-right p{
+  font-size:15px;font-weight:300;
+  line-height:1.85;color:var(--muted);
+}
+
+.svc-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:2px;
+}
+.svc-card{
+  background:var(--card);
+  padding:56px 44px;
+  position:relative;overflow:hidden;
+  cursor:none;transition:background .4s;
+  border:1px solid transparent;
+  transition:all .4s;
+}
+.svc-card:hover{
+  background:var(--surface);
+  border-color:rgba(201,169,110,0.15);
+  transform:translateY(-4px);
+}
+.svc-num{
+  font-family:'Playfair Display',serif;
+  font-size:11px;font-weight:400;
+  letter-spacing:0.2em;color:var(--accent2);
+  margin-bottom:48px;
+}
+.svc-icon{
+  width:52px;height:52px;
+  border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;margin-bottom:28px;
+  transition:border-color .4s,background .4s;
+}
+.svc-card:hover .svc-icon{border-color:rgba(201,169,110,0.3);background:var(--glow)}
+.svc-name{
+  font-family:'Playfair Display',serif;
+  font-size:24px;font-weight:500;
+  color:var(--white);margin-bottom:16px;line-height:1.2;
+}
+.svc-desc{
+  font-size:13px;font-weight:300;
+  line-height:1.8;color:var(--muted);
+  margin-bottom:32px;
+}
+.svc-price{
+  font-size:12px;font-weight:500;
+  letter-spacing:0.1em;color:var(--accent2);
+  padding-top:24px;border-top:1px solid var(--border);
+}
+/* wide card */
+.svc-card.wide{grid-column:span 2}
+.svc-card.wide .svc-inner{
+  display:grid;grid-template-columns:1fr 1fr;gap:40px;
+}
+
+/* ── PROCESS ── */
+.process{
+  padding:160px 72px;
+  background:var(--surface);
+  position:relative;overflow:hidden;
+}
+.process::before{
+  content:'';
+  position:absolute;top:-200px;right:-200px;
+  width:600px;height:600px;
+  background:radial-gradient(circle,rgba(201,169,110,0.04) 0%,transparent 70%);
+  pointer-events:none;
+}
+.process-steps{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:0;margin-top:100px;
+  position:relative;
+}
+.process-steps::before{
+  content:'';
+  position:absolute;top:28px;left:calc(12.5%);
+  width:75%;height:1px;
+  background:linear-gradient(90deg,var(--accent2),var(--border),var(--accent2),var(--border));
+  z-index:0;
+}
+.step{
+  padding:0 32px;
+  text-align:center;
+  position:relative;z-index:1;
+  cursor:none;
+}
+.step-circle{
+  width:56px;height:56px;
+  border:1px solid var(--border);
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 40px;
+  background:var(--bg);
+  font-family:'Playfair Display',serif;
+  font-size:16px;font-weight:500;color:var(--accent2);
+  transition:all .4s;
+  position:relative;z-index:2;
+}
+.step:hover .step-circle{
+  background:var(--accent2);color:var(--bg);
+  border-color:var(--accent2);
+  box-shadow:0 0 40px rgba(201,169,110,0.3);
+}
+.step-name{
+  font-family:'Playfair Display',serif;
+  font-size:18px;font-weight:500;
+  color:var(--white);margin-bottom:12px;
+}
+.step-desc{
+  font-size:13px;font-weight:300;
+  line-height:1.7;color:var(--muted);
+}
+
+/* ── RESULTS ── */
+.results{
+  padding:160px 72px;
+  background:var(--bg);
+}
+.results-inner{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:100px;align-items:center;
+}
+.results-left{}
+.results-left p{
+  font-size:15px;font-weight:300;
+  line-height:1.85;color:var(--muted);
+  margin:28px 0 48px;max-width:440px;
+}
+.results-numbers{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:2px;margin-top:0;
+}
+.rn-card{
+  background:var(--card);
+  border:1px solid var(--border);
+  padding:36px 32px;
+  cursor:none;transition:border-color .3s;
+}
+.rn-card:hover{border-color:rgba(201,169,110,0.2)}
+.rn-num{
+  font-family:'Playfair Display',serif;
+  font-size:52px;font-weight:700;line-height:1;
+  background:linear-gradient(135deg,#E8D5B0 0%,#C9A96E 60%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;margin-bottom:8px;
+}
+.rn-label{font-size:12px;font-weight:300;color:var(--muted);letter-spacing:0.05em}
+
+.results-right{
+  display:flex;flex-direction:column;gap:2px;
+}
+.testimonial{
+  background:var(--card);
+  border:1px solid var(--border);
+  padding:40px 44px;
+  cursor:none;transition:border-color .3s,transform .3s;
+}
+.testimonial:hover{border-color:rgba(201,169,110,0.2);transform:translateX(6px)}
+.t-quote{
+  font-family:'Playfair Display',serif;
+  font-size:15px;font-style:italic;font-weight:400;
+  line-height:1.8;color:var(--white);
+  margin-bottom:28px;
+}
+.t-author{display:flex;align-items:center;gap:14px}
+.t-avatar{
+  width:40px;height:40px;border-radius:50%;
+  background:linear-gradient(135deg,var(--accent2),#7A5520);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Playfair Display',serif;font-size:16px;font-weight:700;
+  color:var(--bg);flex-shrink:0;
+}
+.t-name{font-size:13px;font-weight:500;color:var(--white)}
+.t-biz{font-size:12px;font-weight:300;color:var(--muted)}
+.t-stars{margin-left:auto;color:var(--accent2);font-size:12px;letter-spacing:2px}
+
+/* ── PRICING ── */
+.pricing{
+  padding:160px 72px;
+  background:var(--surface);
+}
+.pricing-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:2px;margin-top:100px;
+}
+.pc{
+  background:var(--card);
+  border:1px solid var(--border);
+  padding:60px 48px;
+  position:relative;
+  cursor:none;
+  transition:transform .3s,border-color .3s;
+}
+.pc:hover{transform:translateY(-6px)}
+.pc.hot{
+  background:linear-gradient(160deg,var(--accent) 0%,var(--accent2) 100%);
+  border:none;transform:translateY(-8px);
+}
+.pc.hot:hover{transform:translateY(-14px)}
+.pc-badge{
+  display:inline-block;
+  background:rgba(0,0,0,0.15);
+  padding:6px 16px;
+  font-size:10px;font-weight:600;
+  letter-spacing:0.15em;text-transform:uppercase;
+  color:var(--bg);margin-bottom:36px;
+}
+.pc-tier{
+  font-size:11px;font-weight:500;
+  letter-spacing:0.2em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:16px;
+}
+.pc.hot .pc-tier{color:rgba(6,6,10,0.6)}
+.pc-price{
+  font-family:'Playfair Display',serif;
+  font-size:64px;font-weight:700;line-height:1;
+  letter-spacing:-0.03em;color:var(--white);
+  margin-bottom:6px;
+}
+.pc.hot .pc-price{color:var(--bg)}
+.pc-period{font-size:13px;font-weight:300;color:var(--muted);margin-bottom:44px}
+.pc.hot .pc-period{color:rgba(6,6,10,0.5)}
+.pc-list{list-style:none;margin-bottom:48px;display:flex;flex-direction:column;gap:0}
+.pc-list li{
+  font-size:14px;font-weight:300;color:var(--muted);
+  padding:14px 0;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:12px;
+}
+.pc.hot .pc-list li{color:rgba(6,6,10,0.7);border-bottom-color:rgba(0,0,0,0.1)}
+.pc-list li::before{
+  content:'';
+  width:18px;height:18px;flex-shrink:0;
+  border:1px solid rgba(201,169,110,0.3);
+  display:flex;align-items:center;justify-content:center;
+  background:var(--glow);
+  position:relative;
+}
+.pc-list li::before{content:'✓';font-size:10px;color:var(--accent2);text-align:center;line-height:18px}
+.pc.hot .pc-list li::before{background:rgba(0,0,0,0.15);border-color:rgba(0,0,0,0.2);color:var(--bg)}
+.pc-btn{
+  display:block;text-align:center;
+  padding:18px;
+  font-size:12px;font-weight:600;
+  letter-spacing:0.1em;text-transform:uppercase;
+  text-decoration:none;cursor:none;
+  transition:all .3s;
+}
+.pc-btn-border{border:1px solid var(--border);color:var(--white)}
+.pc-btn-border:hover{border-color:var(--accent2);color:var(--accent2)}
+.pc-btn-dark{background:var(--bg);color:var(--accent2)}
+.pc-btn-dark:hover{background:#050508}
+
+/* ── CONTACT ── */
+.contact{
+  padding:160px 72px;
+  background:var(--bg);
+  position:relative;overflow:hidden;
+}
+.contact::after{
+  content:'BYB';
+  position:absolute;right:-60px;bottom:-60px;
+  font-family:'Playfair Display',serif;
+  font-size:280px;font-weight:900;
+  color:rgba(238,238,240,0.02);
+  letter-spacing:-0.05em;
+  pointer-events:none;user-select:none;
+  line-height:1;
+}
+.contact-grid{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:100px;position:relative;z-index:1;
+}
+.contact-l .big-title{margin-bottom:24px}
+.contact-l p{
+  font-size:15px;font-weight:300;
+  line-height:1.85;color:var(--muted);
+  margin-bottom:56px;max-width:400px;
+}
+.contact-detail{
+  display:flex;flex-direction:column;gap:24px;
+}
+.cd-item{
+  display:flex;align-items:flex-start;gap:16px;
+  padding:24px;
+  border:1px solid var(--border);
+  background:var(--card);
+  transition:border-color .3s;cursor:none;
+}
+.cd-item:hover{border-color:rgba(201,169,110,0.2)}
+.cd-icon{
+  font-size:20px;flex-shrink:0;
+  width:44px;height:44px;
+  border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  background:var(--glow);
+}
+.cd-text strong{display:block;font-size:13px;font-weight:500;color:var(--white);margin-bottom:4px}
+.cd-text span{font-size:13px;font-weight:300;color:var(--muted)}
+
+.cform{display:flex;flex-direction:column;gap:14px}
+.cf-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.cf-field{display:flex;flex-direction:column;gap:8px}
+.cf-field label{
+  font-size:10px;font-weight:600;
+  letter-spacing:0.2em;text-transform:uppercase;
+  color:var(--muted);
+}
+.cf-field input,.cf-field select,.cf-field textarea{
+  background:var(--card);
+  border:1px solid var(--border);
+  color:var(--white);
+  padding:16px 20px;
+  font-family:'Outfit',sans-serif;
+  font-size:14px;font-weight:300;
+  outline:none;cursor:none;
+  transition:border-color .3s,background .3s;
+  -webkit-appearance:none;
+}
+.cf-field select option{background:var(--bg)}
+.cf-field input:focus,.cf-field select:focus,.cf-field textarea:focus{
+  border-color:rgba(201,169,110,0.4);
+  background:var(--surface);
+}
+.cf-field input::placeholder,.cf-field textarea::placeholder{color:rgba(238,238,240,0.15)}
+.cf-field textarea{resize:vertical;min-height:130px}
+.cf-submit{
+  background:var(--accent);color:var(--bg);
+  border:none;padding:20px;
+  font-family:'Outfit',sans-serif;
+  font-size:12px;font-weight:600;
+  letter-spacing:0.12em;text-transform:uppercase;
+  cursor:none;transition:background .3s,transform .2s;
+  margin-top:6px;
+}
+.cf-submit:hover{background:var(--accent2);transform:translateY(-2px)}
+.cf-success{
+  display:none;
+  border:1px solid rgba(201,169,110,0.25);
+  background:rgba(201,169,110,0.06);
+  padding:24px 32px;
+  color:var(--accent2);font-size:14px;
+  text-align:center;margin-top:12px;letter-spacing:0.05em;
+}
+
+/* ── FOOTER ── */
+footer{
+  background:var(--surface);
+  border-top:1px solid var(--border);
+  padding:100px 72px 48px;
+}
+.footer-grid{
+  display:grid;grid-template-columns:2fr 1fr 1fr 1fr;
+  gap:60px;padding-bottom:72px;
+  border-bottom:1px solid var(--border);
+}
+.footer-brand .nav-logo{margin-bottom:24px;display:inline-flex}
+.footer-brand p{
+  font-size:13px;font-weight:300;
+  line-height:1.8;color:var(--muted);max-width:280px;
+}
+.footer-tag{
+  display:inline-block;
+  margin-top:28px;
+  font-family:'Playfair Display',serif;
+  font-size:18px;font-style:italic;
+  color:var(--accent);
+}
+.footer-col h5{
+  font-size:10px;font-weight:600;
+  letter-spacing:0.25em;text-transform:uppercase;
+  color:var(--white);margin-bottom:28px;
+}
+.footer-col ul{list-style:none;display:flex;flex-direction:column;gap:14px}
+.footer-col ul li a{
+  font-size:13px;font-weight:300;
+  color:var(--muted);text-decoration:none;
+  transition:color .3s;
+}
+.footer-col ul li a:hover{color:var(--accent)}
+.footer-bottom{
+  display:flex;justify-content:space-between;align-items:center;
+  padding-top:36px;
+}
+.footer-copy{font-size:12px;color:rgba(238,238,240,0.2)}
+.socials{display:flex;gap:10px}
+.s-btn{
+  width:42px;height:42px;
+  border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  color:var(--muted);text-decoration:none;
+  font-size:11px;font-weight:600;letter-spacing:0.05em;
+  transition:all .3s;cursor:none;
+}
+.s-btn:hover{border-color:rgba(201,169,110,0.3);color:var(--accent2);background:var(--glow)}
+
+/* ── KEYFRAMES ── */
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(32px)}
+  to{opacity:1;transform:translateY(0)}
+}
+@keyframes slideUp{
+  from{transform:translateY(100%);opacity:0}
+  to{transform:translateY(0);opacity:1}
+}
+@keyframes loaderFill{
+  from{width:0}
+  to{width:100%}
+}
+@keyframes marquee{
+  from{transform:translateX(0)}
+  to{transform:translateX(-50%)}
+}
+@keyframes breathe{
+  0%,100%{opacity:1;transform:scale(1)}
+  50%{opacity:.4;transform:scale(.75)}
+}
+
+.reveal{opacity:0;transform:translateY(36px);transition:opacity .9s ease,transform .9s ease}
+.reveal.in{opacity:1;transform:translateY(0)}
+
+/* ── RESPONSIVE ── */
+@media(max-width:1100px){
+  nav,nav.stuck{padding:20px 28px}
+  .nav-links{display:none}
+  .hero{grid-template-columns:1fr}
+  .hero-r{display:none}
+  .hero-l{padding:140px 28px 180px}
+  .hero-bottom .hb-item:nth-child(n+3){display:none}
+  .services,.process,.results,.pricing,.contact,footer{padding-left:28px;padding-right:28px}
+  .s-header,.results-inner,.contact-grid,.footer-grid{grid-template-columns:1fr;gap:48px}
+  .svc-grid{grid-template-columns:1fr}
+  .svc-card.wide .svc-inner{grid-template-columns:1fr}
+  .process-steps{grid-template-columns:1fr 1fr;gap:32px}
+  .process-steps::before{display:none}
+  .pricing-grid{grid-template-columns:1fr}
+  .pc.hot{transform:none}
+  .results-numbers{grid-template-columns:1fr 1fr}
+  .cf-row{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- LOADER -->
+<div id="loader">
+  <div class="loader-logo">
+    <span>B</span><span>Y</span><span>B</span>
+  </div>
+  <div class="loader-bar"><div class="loader-bar-fill"></div></div>
+</div>
+
+<div id="cur"></div>
+<div id="cur-trail"></div>
+
+<!-- NAV -->
+<nav id="nav">
+  <a href="#" class="nav-logo">
+    <div class="nav-dot"></div>
+    Build Your Brand
+  </a>
+  <ul class="nav-links">
+    <li><a href="#services">Services</a></li>
+    <li><a href="#process">Process</a></li>
+    <li><a href="#results">Results</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+  </ul>
+  <a href="#contact" class="nav-btn">Start a Project</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-l">
+    <div class="hero-eyebrow">
+      <span class="hero-eyebrow-line"></span>
+      AI-Powered Digital Agency
+    </div>
+    <h1 class="hero-h1">
+      We Don't Just
+      <span class="stroke">Build Websites.</span>
+      <span class="gold">We Build Empires.</span>
+    </h1>
+    <p class="hero-p">BYB is a premium digital agency that helps small businesses dominate online — with stunning websites, smart booking systems, and AI voice agents that work around the clock.</p>
+    <div class="hero-btns">
+      <a href="#contact" class="btn-primary">Start Your Project</a>
+      <a href="#services" class="btn-text">Explore Services</a>
+    </div>
+  </div>
+
+  <div class="hero-r">
+    <div class="orb orb1"></div>
+    <div class="orb orb2"></div>
+    <div class="hero-r-inner">
+      <div class="hero-card-stack">
+        <div class="hero-card">
+          <div class="hc-label">Live AI Voice Agent</div>
+          <div class="hc-title">Smart Booking Assistant</div>
+          <div class="hc-sub">Your AI receptionist — takes calls, books appointments, answers questions. 24/7.</div>
+          <div class="hc-pill">● Active Now</div>
+        </div>
+        <div class="hero-card">
+          <div class="hc-label">Client Dashboard</div>
+          <div class="hc-row">
+            <div class="hc-stat">
+              <div class="hc-stat-n">98%</div>
+              <div class="hc-stat-l">Uptime</div>
+            </div>
+            <div class="hc-div"></div>
+            <div class="hc-stat">
+              <div class="hc-stat-n">48h</div>
+              <div class="hc-stat-l">Delivery</div>
+            </div>
+            <div class="hc-div"></div>
+            <div class="hc-stat">
+              <div class="hc-stat-n">4.9★</div>
+              <div class="hc-stat-l">Rating</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-bottom">
+    <div class="hb-item">
+      <div class="hb-num">50+</div>
+      <div class="hb-label">Businesses<br>Launched</div>
+    </div>
+    <div class="hb-item">
+      <div class="hb-num">24/7</div>
+      <div class="hb-label">AI Agent<br>Availability</div>
+    </div>
+    <div class="hb-item">
+      <div class="hb-num">3×</div>
+      <div class="hb-label">Average Revenue<br>Increase</div>
+    </div>
+    <div class="hb-item">
+      <div class="hb-num">100%</div>
+      <div class="hb-label">Client<br>Satisfaction</div>
+    </div>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-wrap">
+  <div class="marquee-track">
+    <span class="m-item"><span class="m-star">✦</span> Website Design</span>
+    <span class="m-item"><span class="m-star">✦</span> AI Voice Agents</span>
+    <span class="m-item"><span class="m-star">✦</span> Booking Systems</span>
+    <span class="m-item"><span class="m-star">✦</span> Digital Marketing</span>
+    <span class="m-item"><span class="m-star">✦</span> Website Maintenance</span>
+    <span class="m-item"><span class="m-star">✦</span> SEO & Growth</span>
+    <span class="m-item"><span class="m-star">✦</span> Brand Identity</span>
+    <span class="m-item"><span class="m-star">✦</span> Website Design</span>
+    <span class="m-item"><span class="m-star">✦</span> AI Voice Agents</span>
+    <span class="m-item"><span class="m-star">✦</span> Booking Systems</span>
+    <span class="m-item"><span class="m-star">✦</span> Digital Marketing</span>
+    <span class="m-item"><span class="m-star">✦</span> Website Maintenance</span>
+    <span class="m-item"><span class="m-star">✦</span> SEO & Growth</span>
+    <span class="m-item"><span class="m-star">✦</span> Brand Identity</span>
+  </div>
+</div>
+
+<!-- SERVICES -->
+<section class="services" id="services">
+  <div class="s-header">
+    <div class="reveal">
+      <div class="eyebrow">Our Services</div>
+      <h2 class="big-title">Everything you need<br>to win <em>online.</em></h2>
+    </div>
+    <div class="reveal">
+      <p>We're not a one-trick agency. We handle your entire digital presence — from the first impression to the repeat booking — so you can focus on what you do best.</p>
+    </div>
+  </div>
+
+  <div class="svc-grid">
+    <div class="svc-card reveal">
+      <div class="svc-num">01 — Design</div>
+      <div class="svc-icon">✦</div>
+      <div class="svc-name">Website Design & Build</div>
+      <p class="svc-desc">Premium custom websites that convert visitors into paying customers. Fast, mobile-ready, and built to impress from the first second.</p>
+      <div class="svc-price">From $499 one-time</div>
+    </div>
+
+    <div class="svc-card reveal" style="transition-delay:.08s">
+      <div class="svc-num">02 — Care</div>
+      <div class="svc-icon">⚙</div>
+      <div class="svc-name">Website Maintenance</div>
+      <p class="svc-desc">We keep your site updated, secure, and running perfectly every month. No tech headaches — ever.</p>
+      <div class="svc-price">From $99 / month</div>
+    </div>
+
+    <div class="svc-card reveal" style="transition-delay:.16s">
+      <div class="svc-num">03 — Systems</div>
+      <div class="svc-icon">📅</div>
+      <div class="svc-name">Booking System Setup</div>
+      <p class="svc-desc">Let clients book you 24/7 online. Synced to your calendar, automated reminders, zero back-and-forth.</p>
+      <div class="svc-price">From $199 one-time</div>
+    </div>
+
+    <div class="svc-card wide reveal" style="transition-delay:.24s">
+      <div class="svc-inner">
+        <div>
+          <div class="svc-num">04 — AI</div>
+          <div class="svc-icon">🤖</div>
+          <div class="svc-name">AI Voice Agent</div>
+          <p class="svc-desc">An intelligent AI that answers your phone calls, takes bookings, and handles customer questions — even at 3am. Never miss a lead again.</p>
+          <div class="svc-price">From $149 / month</div>
+        </div>
+        <div>
+          <div class="svc-num">05 — Growth</div>
+          <div class="svc-icon">📈</div>
+          <div class="svc-name">Digital Marketing</div>
+          <p class="svc-desc">SEO that gets you found on Google. Social media that builds your audience. Paid ads that actually return more than they cost.</p>
+          <div class="svc-price">From $299 / month</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROCESS -->
+<section class="process" id="process">
+  <div class="reveal">
+    <div class="eyebrow">How It Works</div>
+    <h2 class="big-title">From idea to live<br><em>in 4 steps.</em></h2>
+  </div>
+  <div class="process-steps">
+    <div class="step reveal">
+      <div class="step-circle">01</div>
+      <div class="step-name">Discovery</div>
+      <p class="step-desc">Free 30-min call. We learn your business, goals, and what success looks like for you.</p>
+    </div>
+    <div class="step reveal" style="transition-delay:.1s">
+      <div class="step-circle">02</div>
+      <div class="step-name">Build</div>
+      <p class="step-desc">We design and build everything. You review and approve before anything goes live.</p>
+    </div>
+    <div class="step reveal" style="transition-delay:.2s">
+      <div class="step-circle">03</div>
+      <div class="step-name">Launch</div>
+      <p class="step-desc">Your brand goes live. Domain, hosting, speed — all handled by us, end to end.</p>
+    </div>
+    <div class="step reveal" style="transition-delay:.3s">
+      <div class="step-circle">04</div>
+      <div class="step-name">Grow</div>
+      <p class="step-desc">Monthly maintenance, marketing, and optimisation so your business keeps climbing.</p>
+    </div>
+  </div>
+</section>
+
+<!-- RESULTS -->
+<section class="results" id="results">
+  <div class="results-inner">
+    <div class="reveal">
+      <div class="eyebrow">Results</div>
+      <h2 class="big-title">Numbers that<br><em>speak loudly.</em></h2>
+      <p>We measure our success by yours. Every website we build and every AI agent we deploy is designed with one goal — making your business more money.</p>
+      <div class="results-numbers">
+        <div class="rn-card">
+          <div class="rn-num">50+</div>
+          <div class="rn-label">Businesses launched online</div>
+        </div>
+        <div class="rn-card">
+          <div class="rn-num">3×</div>
+          <div class="rn-label">Average booking increase</div>
+        </div>
+        <div class="rn-card">
+          <div class="rn-num">48h</div>
+          <div class="rn-label">Average site delivery</div>
+        </div>
+        <div class="rn-card">
+          <div class="rn-num">4.9</div>
+          <div class="rn-label">Average client rating</div>
+        </div>
+      </div>
+    </div>
+    <div class="results-right reveal" style="transition-delay:.15s">
+      <div class="testimonial">
+        <p class="t-quote">"BYB built our salon website and set up the AI booking agent in under a week. Our bookings went up 40% in the first month. Unreal."</p>
+        <div class="t-author">
+          <div class="t-avatar">A</div>
+          <div>
+            <div class="t-name">Amara Johnson</div>
+            <div class="t-biz">Luxe Hair Studio</div>
+          </div>
+          <div class="t-stars">★★★★★</div>
+        </div>
+      </div>
+      <div class="testimonial">
+        <p class="t-quote">"Before BYB we had no online presence. Now we rank on Google, we have a booking system, and the AI agent handles calls we used to miss. Game changer."</p>
+        <div class="t-author">
+          <div class="t-avatar">M</div>
+          <div>
+            <div class="t-name">Marcus Reid</div>
+            <div class="t-biz">Reid's Barbershop</div>
+          </div>
+          <div class="t-stars">★★★★★</div>
+        </div>
+      </div>
+      <div class="testimonial">
+        <p class="t-quote">"Professional, fast, and they actually explain everything. I felt like I had a full tech team for the price of a coffee subscription."</p>
+        <div class="t-author">
+          <div class="t-avatar">S</div>
+          <div>
+            <div class="t-name">Sofia Mensah</div>
+            <div class="t-biz">Bloom Nail Studio</div>
+          </div>
+          <div class="t-stars">★★★★★</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing" id="pricing">
+  <div class="reveal">
+    <div class="eyebrow">Pricing</div>
+    <h2 class="big-title">Simple, honest<br><em>pricing.</em></h2>
+  </div>
+  <div class="pricing-grid">
+    <div class="pc reveal">
+      <div class="pc-tier">Starter</div>
+      <div class="pc-price">$499</div>
+      <div class="pc-period">one-time</div>
+      <ul class="pc-list">
+        <li>Custom Website — up to 5 pages</li>
+        <li>Mobile Responsive Design</li>
+        <li>Contact & Booking Form</li>
+        <li>Basic SEO Setup</li>
+        <li>1 Month Support Included</li>
+      </ul>
+      <a href="#contact" class="pc-btn pc-btn-border">Get Started</a>
+    </div>
+    <div class="pc hot reveal" style="transition-delay:.1s">
+      <div class="pc-badge">Most Popular</div>
+      <div class="pc-tier">Growth</div>
+      <div class="pc-price">$299</div>
+      <div class="pc-period">per month</div>
+      <ul class="pc-list">
+        <li>Everything in Starter</li>
+        <li>Online Booking System</li>
+        <li>AI Voice Agent</li>
+        <li>Monthly Maintenance</li>
+        <li>SEO & Content Updates</li>
+        <li>Priority Support</li>
+      </ul>
+      <a href="#contact" class="pc-btn pc-btn-dark">Start Growing</a>
+    </div>
+    <div class="pc reveal" style="transition-delay:.2s">
+      <div class="pc-tier">Enterprise</div>
+      <div class="pc-price">$599</div>
+      <div class="pc-period">per month</div>
+      <ul class="pc-list">
+        <li>Everything in Growth</li>
+        <li>Full Digital Marketing</li>
+        <li>Paid Ad Management</li>
+        <li>Social Media Management</li>
+        <li>Monthly Analytics Report</li>
+        <li>Dedicated Account Manager</li>
+      </ul>
+      <a href="#contact" class="pc-btn pc-btn-border">Contact Us</a>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="contact" id="contact">
+  <div class="contact-grid">
+    <div class="contact-l reveal">
+      <div class="eyebrow">Get In Touch</div>
+      <h2 class="big-title">Ready to build<br><em>your brand?</em></h2>
+      <p>Tell us about your business. We'll send you a free proposal within 24 hours — no commitment, no pressure.</p>
+      <div class="contact-detail">
+        <div class="cd-item">
+          <div class="cd-icon">✉</div>
+          <div class="cd-text">
+            <strong>Email</strong>
+            <span>hello@buildyourbrand.co</span>
+          </div>
+        </div>
+        <div class="cd-item">
+          <div class="cd-icon">☎</div>
+          <div class="cd-text">
+            <strong>Phone</strong>
+            <span>(555) 123-4567</span>
+          </div>
+        </div>
+        <div class="cd-item">
+          <div class="cd-icon">⚡</div>
+          <div class="cd-text">
+            <strong>Response Time</strong>
+            <span>Within 24 hours, always</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="reveal" style="transition-delay:.2s">
+      <form class="cform" id="cform" onsubmit="submitForm(event)">
+        <div class="cf-row">
+          <div class="cf-field">
+            <label>Your Name</label>
+            <input type="text" placeholder="Jane Smith" required>
+          </div>
+          <div class="cf-field">
+            <label>Business Name</label>
+            <input type="text" placeholder="My Business Co." required>
+          </div>
+        </div>
+        <div class="cf-field">
+          <label>Email Address</label>
+          <input type="email" placeholder="you@yourbusiness.com" required>
+        </div>
+        <div class="cf-field">
+          <label>Service Needed</label>
+          <select required>
+            <option value="">Select a service...</option>
+            <option>Website Design & Build</option>
+            <option>Website Maintenance</option>
+            <option>Booking System Setup</option>
+            <option>AI Voice Agent</option>
+            <option>Digital Marketing</option>
+            <option>Full Growth Package</option>
+          </select>
+        </div>
+        <div class="cf-field">
+          <label>Tell Us About Your Business</label>
+          <textarea placeholder="What do you do? What's your biggest challenge online right now?"></textarea>
+        </div>
+        <button type="submit" class="cf-submit">Send Message — Free Consultation →</button>
+      </form>
+      <div class="cf-success" id="cf-success">
+        ✦ &nbsp; Message received. We'll be in touch within 24 hours.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <a href="#" class="nav-logo">
+        <div class="nav-dot"></div>
+        Build Your Brand
+      </a>
+      <p>Premium digital agency helping small businesses build powerful online presences with cutting-edge websites and AI technology.</p>
+      <div class="footer-tag">#BuildYourBrand</div>
+    </div>
+    <div class="footer-col">
+      <h5>Services</h5>
+      <ul>
+        <li><a href="#services">Website Design</a></li>
+        <li><a href="#services">Maintenance</a></li>
+        <li><a href="#services">Booking Systems</a></li>
+        <li><a href="#services">AI Voice Agents</a></li>
+        <li><a href="#services">Digital Marketing</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>Company</h5>
+      <ul>
+        <li><a href="#process">How It Works</a></li>
+        <li><a href="#results">Results</a></li>
+        <li><a href="#pricing">Pricing</a></li>
+        <li><a href="#contact">Free Consultation</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h5>Connect</h5>
+      <ul>
+        <li><a href="#">Instagram</a></li>
+        <li><a href="#">LinkedIn</a></li>
+        <li><a href="#">TikTok</a></li>
+        <li><a href="#">Twitter / X</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p class="footer-copy">© 2025 Build Your Brand. All rights reserved.</p>
+    <div class="socials">
+      <a href="#" class="s-btn">IG</a>
+      <a href="#" class="s-btn">LI</a>
+      <a href="#" class="s-btn">TK</a>
+      <a href="#" class="s-btn">X</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+// Loader
+window.addEventListener('load',()=>{
+  setTimeout(()=>document.getElementById('loader').classList.add('gone'),1800);
+});
+
+// Cursor
+const cur=document.getElementById('cur');
+const trail=document.getElementById('cur-trail');
+let mx=0,my=0,tx=0,ty=0;
+document.addEventListener('mousemove',e=>{
+  mx=e.clientX;my=e.clientY;
+  cur.style.left=mx+'px';cur.style.top=my+'px';
+});
+function loopTrail(){
+  tx+=(mx-tx)*.1;ty+=(my-ty)*.1;
+  trail.style.left=tx+'px';trail.style.top=ty+'px';
+  requestAnimationFrame(loopTrail);
+}loopTrail();
+document.querySelectorAll('a,button,.svc-card,.pc,.testimonial,.cd-item,.hb-item').forEach(el=>{
+  el.addEventListener('mouseenter',()=>cur.classList.add('big'));
+  el.addEventListener('mouseleave',()=>cur.classList.remove('big'));
+});
+
+// Sticky nav
+window.addEventListener('scroll',()=>{
+  document.getElementById('nav').classList.toggle('stuck',scrollY>60);
+});
+
+// Scroll reveal
+const ro=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in')});
+},{threshold:.1});
+document.querySelectorAll('.reveal').forEach(r=>ro.observe(r));
+
+// Form
+function submitForm(e){
+  e.preventDefault();
+  document.getElementById('cform').style.display='none';
+  document.getElementById('cf-success').style.display='block';
+}
+</script>
+</body>
+</html>
