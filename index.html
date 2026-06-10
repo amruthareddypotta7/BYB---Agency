@@ -30,24 +30,6 @@ body{
   cursor:default;
 }
 
-/* ── CURSOR ── */
-#cur{
-  position:fixed;width:6px;height:6px;
-  background:var(--accent);border-radius:50%;
-  pointer-events:none;z-index:9999;
-  transform:translate(-50%,-50%);
-  transition:width .2s,height .2s,background .2s;
-}
-#cur.big{width:48px;height:48px;background:transparent;border:1px solid var(--accent2);mix-blend-mode:normal}
-#cur-trail{
-  position:fixed;width:44px;height:44px;
-  border:1px solid rgba(201,169,110,0.25);
-  border-radius:50%;
-  pointer-events:none;z-index:9998;
-  transform:translate(-50%,-50%);
-  transition:transform .55s cubic-bezier(.16,1,.3,1);
-}
-
 /* ── LOADER ── */
 #loader{
   position:fixed;inset:0;z-index:9000;
@@ -1232,23 +1214,6 @@ window.addEventListener('load',()=>{
   setTimeout(()=>document.getElementById('loader').classList.add('gone'),1800);
 });
 
-// Cursor
-const cur=document.getElementById('cur');
-const trail=document.getElementById('cur-trail');
-let mx=0,my=0,tx=0,ty=0;
-document.addEventListener('mousemove',e=>{
-  mx=e.clientX;my=e.clientY;
-  cur.style.left=mx+'px';cur.style.top=my+'px';
-});
-function loopTrail(){
-  tx+=(mx-tx)*.1;ty+=(my-ty)*.1;
-  trail.style.left=tx+'px';trail.style.top=ty+'px';
-  requestAnimationFrame(loopTrail);
-}loopTrail();
-document.querySelectorAll('a,button,.svc-card,.pc,.testimonial,.cd-item,.hb-item').forEach(el=>{
-  el.addEventListener('mouseenter',()=>cur.classList.add('big'));
-  el.addEventListener('mouseleave',()=>cur.classList.remove('big'));
-});
 
 // Sticky nav
 window.addEventListener('scroll',()=>{
